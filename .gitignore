@@ -1,0 +1,35 @@
+# Secretos / entorno
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+target/
+*.class
+*.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+
+# Node (por si algun servicio del equipo usa Node/Express)
+node_modules/
+npm-debug.log*
+
+# Python (por si algun servicio del equipo usa Python/FastAPI)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Docker
+docker-compose.override.yml

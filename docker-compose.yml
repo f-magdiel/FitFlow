@@ -1,0 +1,120 @@
+networks:
+  fitflow-net:
+    driver: bridge
+
+volumes:
+  # users_db_data:     # descomentar cuando se integre users-svc (rama feature/users-svc)
+  # booking_db_data:   # descomentar cuando se implemente booking-svc
+  # notif_db_data:     # descomentar cuando se implemente notif-svc
+
+services:
+
+  # ---------- users-svc (Task 1 — en desarrollo, ver rama feature/users-svc) ----------
+  # users-db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: ${USERS_DB_NAME}
+  #     POSTGRES_USER: ${USERS_DB_USER}
+  #     POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
+  #   volumes:
+  #     - users_db_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 10
+  #   networks:
+  #     - fitflow-net
+  #
+  # users-svc:
+  #   build:
+  #     context: ./users-svc
+  #   ports:
+  #     - "8003:8003"
+  #   environment:
+  #     SERVER_PORT: 8003
+  #     DB_HOST: users-db
+  #     DB_PORT: 5432
+  #     DB_NAME: ${USERS_DB_NAME}
+  #     DB_USER: ${USERS_DB_USER}
+  #     DB_PASSWORD: ${USERS_DB_PASSWORD}
+  #     JWT_SECRET: ${JWT_SECRET}
+  #     JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+  #   depends_on:
+  #     users-db:
+  #       condition: service_healthy
+  #   networks:
+  #     - fitflow-net
+
+  # ---------- booking-svc (pendiente — ver booking-svc/README.md) ----------
+  # booking-db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: ${BOOKING_DB_NAME}
+  #     POSTGRES_USER: ${BOOKING_DB_USER}
+  #     POSTGRES_PASSWORD: ${BOOKING_DB_PASSWORD}
+  #   volumes:
+  #     - booking_db_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 10
+  #   networks:
+  #     - fitflow-net
+  #
+  # booking-svc:
+  #   build:
+  #     context: ./booking-svc
+  #   ports:
+  #     - "8001:8001"
+  #   environment:
+  #     SERVER_PORT: 8001
+  #     DB_HOST: booking-db
+  #     DB_PORT: 5432
+  #     DB_NAME: ${BOOKING_DB_NAME}
+  #     DB_USER: ${BOOKING_DB_USER}
+  #     DB_PASSWORD: ${BOOKING_DB_PASSWORD}
+  #     JWT_SECRET: ${JWT_SECRET}
+  #     USERS_SVC_URL: http://users-svc:8003
+  #     NOTIF_SVC_URL: http://notif-svc:8002
+  #   depends_on:
+  #     booking-db:
+  #       condition: service_healthy
+  #   networks:
+  #     - fitflow-net
+
+  # ---------- notif-svc (pendiente — ver notif-svc/README.md) ----------
+  # notif-db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: ${NOTIF_DB_NAME}
+  #     POSTGRES_USER: ${NOTIF_DB_USER}
+  #     POSTGRES_PASSWORD: ${NOTIF_DB_PASSWORD}
+  #   volumes:
+  #     - notif_db_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 10
+  #   networks:
+  #     - fitflow-net
+  #
+  # notif-svc:
+  #   build:
+  #     context: ./notif-svc
+  #   ports:
+  #     - "8002:8002"
+  #   environment:
+  #     SERVER_PORT: 8002
+  #     DB_HOST: notif-db
+  #     DB_PORT: 5432
+  #     DB_NAME: ${NOTIF_DB_NAME}
+  #     DB_USER: ${NOTIF_DB_USER}
+  #     DB_PASSWORD: ${NOTIF_DB_PASSWORD}
+  #   depends_on:
+  #     notif-db:
+  #       condition: service_healthy
+  #   networks:
+  #     - fitflow-net
