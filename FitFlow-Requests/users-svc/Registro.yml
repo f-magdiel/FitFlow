@@ -1,0 +1,23 @@
+info:
+  name: Registro
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:8003/api/auth/register
+  body:
+    type: json
+    data: |-
+      {
+        "fullName":"Francisco Asicona",
+        "email":"franciscoasicona@example.com",
+        "password":"supersecreto123"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
