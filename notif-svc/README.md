@@ -1,193 +1,142 @@
 # FitFlow `notif-svc`
 
-Standalone Java/Spring Boot implementation of the FitFlow notification microservice for **Task 1 — Microservices + Docker**.
+Lightweight Java/Spring Boot notification microservice. This README reflects the current repository layout, Docker usage, environment variables, and helper scripts present in the `notif-svc` folder.
 
-## Scope
+## Overview
 
-This project implements the minimum Task 1 responsibilities for `notif-svc`:
+This module is implemented as a multi-module Maven project and is split to separate API, service, and persistence concerns. A runnable module named `notif-server` contains the Spring Boot `main()` to produce the executable JAR used by Docker.
 
-- Create/send a notification. For now, delivery is represented by an application log.
-- Persist and query a user's notification history.
-- `GET /healthz` liveness endpoint.
-- `GET /readyz` readiness endpoint that verifies PostgreSQL connectivity.
-- Runs on port `8002`.
-- Uses its own PostgreSQL instance and an application-specific DB account.
-- Uses environment variables for passwords; `.env` is ignored by Git.
-- Uses logical Docker hostnames (`notif-db`, `notif-svc`) rather than container IPs.
+Key runtime notes:
+- The root `docker-compose.yml` orchestrates the database (`notif-db`) and the service (`notif-svc`).
+- The Postgres host is exposed on the host as `55432:5432` to avoid conflicts with local Postgres instances.
+- Default DB environment variables are injected and also set in `notif-api`'s `application.yml` so local runs work without extra env setup.
+- Hibernate is configured with `ddl-auto: validate` — the schema must exist before the Spring app starts.
 
-Task 2 (Consul), Task 3 (resilience/correlation IDs), Task 4 (JWT), and Task 5 (A2A) are intentionally outside this initial implementation.
-
-## Project structure
+## Project structure (actual)
 
 ```text
 notif-svc/
-├── notif-api/       # REST controllers, DTOs, Spring Boot entry point
-├── notif-service/   # business/application logic
-├── notif-dao/       # JPA entity + repository
-├── docker/          # PostgreSQL initialization
-├── Dockerfile
-├── docker-compose.yml
-└── pom.xml          # Maven multi-module parent
+├── notif-api/       # Controllers, DTOs, shared Spring config (application.yml defaults)
+├── notif-service/   # Business logic and service layer
+├── notif-dao/       # JPA entities and repositories
+├── notif-server/    # Runnable Spring Boot main; builds the executable jar
+├── docker/          # PostgreSQL init scripts: docker/postgres/init
+├── Dockerfile       # Builds a runtime image (copies notif-server jar)
+├── start-notif-db.sh
+├── stop-notif-db.sh
+├── build-notif-app.sh
+├── start-notif-app.sh
+├── stop-notif-app.sh
+├── remove-notif-app.sh
+└── pom.xml          # Maven parent for modules above
 ```
 
-Dependency direction:
+Module dependency direction:
 
 ```text
-notif-api -> notif-service -> notif-dao -> PostgreSQL
+notif-server -> notif-api -> notif-service -> notif-dao -> PostgreSQL
 ```
 
-## Technology
+## Important files and locations
 
-- Java 25
-- Spring Boot 4.0.8
-- Maven multi-module build
-- Spring MVC
-- Spring Data JPA
-- PostgreSQL 16
-- Docker / Docker Compose
+- `notif-svc/notif-api/src/main/resources/application.yml` — default datasource and server config used for both Docker and local runs (contains `${NOTIF_DB_*}` defaults).
+- `notif-svc/docker/postgres/init/01-create-notif-schema.sh` — idempotent SQL used to create schema and roles; placed under Postgres init dir so the image bootstraps on first volume creation.
+- `docker-compose.yml` (repo root) — use this to run both `notif-db` and `notif-svc` together.
 
-## Database and least privilege
+## Environment variables (used names)
 
-The database container is initialized with two users:
+Set these for production/local parity. Defaults are provided in `notif-api`'s `application.yml` so a developer can run locally without extra env vars, but Docker compose will supply the intended values when used.
 
-1. `NOTIF_DB_ADMIN_USER`: bootstrap account used by PostgreSQL initialization.
-2. `NOTIF_DB_USER`: application account used by `notif-svc`.
+- `NOTIF_DB_NAME` (default `notifdb`)
+- `NOTIF_DB_USER` (default `notif_user`)
+- `NOTIF_DB_PASSWORD` (default `notif_pass`)
+- `NOTIF_DB_HOST` (compose: `notif-db`, local default: `localhost`)
+- `NOTIF_DB_PORT` (compose: `5432`, host-mapped default: `55432`)
 
-The Java service receives only the application credentials. The application account is granted `CONNECT`, schema `USAGE`, and DML permissions on the `notifications` table. It is not the PostgreSQL bootstrap/superuser account.
+Note: `spring.datasource.url` in `application.yml` resolves via `${NOTIF_DB_HOST:localhost}:${NOTIF_DB_PORT:55432}/${NOTIF_DB_NAME:notifdb}`.
 
-## Run with Docker Compose
+## Docker / Compose
 
-Create the local environment file:
+Preferred developer path (from repo root):
 
 ```bash
-cp .env.example .env
+# build and start DB + service via root compose
+docker compose up -d --build notif-db notif-svc
+
+# follow logs
+docker compose logs -f notif-svc
 ```
 
-Edit `.env` and replace both placeholder passwords.
+Key runtime details:
+- The DB container uses a named volume (persisted data). Postgres init scripts under `notif-svc/docker/postgres/init` are executed only on first-time initialization of that volume.
+- Host port mapping uses `55432:5432` so local Postgres on `5432` is unaffected.
+- Compose sets `NOTIF_DB_HOST=notif-db` and `NOTIF_DB_PORT=5432` for the `notif-svc` service so the app connects to the internal container address.
 
-Start the service and database:
+## Helper scripts (in `notif-svc/`)
+
+- `start-notif-db.sh` — ensures `fitflow-net` exists and starts the DB container (waits for readiness and bootstraps schema if needed).
+- `stop-notif-db.sh` — stops and optionally removes the DB container.
+- `build-notif-app.sh` — builds the `notif-server` module and the Docker image (uses `mvn -pl notif-server -am clean package -DskipTests`).
+- `start-notif-app.sh` — runs the app container and ensures it can resolve `notif-db` (attaches network/alias or uses `--add-host` fallback).
+- `stop-notif-app.sh` — stops and removes the running app container; supports `--remove-stopped`.
+- `remove-notif-app.sh` — removes the app image and network if unused.
+
+Use these scripts from the `notif-svc` folder. Example:
 
 ```bash
-docker compose up --build
+cd notif-svc
+./build-notif-app.sh
+./start-notif-app.sh
 ```
 
-The service is available at:
+## Run locally (developer)
 
-```text
-http://localhost:8002
-```
-
-Inside the Docker network, other services should address it as:
-
-```text
-http://notif-svc:8002
-```
-
-## Endpoints
-
-### Liveness
-
-```bash
-curl http://localhost:8002/healthz
-```
-
-Expected:
-
-```json
-{"status":"ok"}
-```
-
-### Readiness
-
-```bash
-curl http://localhost:8002/readyz
-```
-
-Expected while PostgreSQL is reachable:
-
-```json
-{"status":"ok"}
-```
-
-If PostgreSQL cannot be reached, the endpoint returns HTTP `503` with:
-
-```json
-{"status":"error"}
-```
-
-### Create/send notification
-
-```bash
-curl -i -X POST http://localhost:8002/notifications \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "userId": "user-123",
-    "type": "BOOKING_CREATED",
-    "message": "Your fitness class reservation was created."
-  }'
-```
-
-Expected HTTP status: `201 Created`.
-
-Example response:
-
-```json
-{
-  "id": "7e85ec21-769a-43ff-b61d-601969a6ff21",
-  "userId": "user-123",
-  "type": "BOOKING_CREATED",
-  "message": "Your fitness class reservation was created.",
-  "status": "SENT",
-  "createdAt": "2026-08-22T23:30:00Z"
-}
-```
-
-The service also writes a log representing the notification send operation.
-
-### Notification history by user
-
-```bash
-curl http://localhost:8002/notifications/users/user-123
-```
-
-Notifications are returned newest first.
-
-## Build locally with Maven
-
-Java 25 and Maven are required:
-
-```bash
-mvn clean package
-```
-
-Run the API module locally only after providing database environment variables:
+To run locally without Docker, ensure the DB is reachable and the environment variables are set. Defaults exist in `notif-api` so you can point to the host-mapped Postgres port if you started the DB via Docker Compose:
 
 ```bash
 export NOTIF_DB_HOST=localhost
-export NOTIF_DB_PORT=5432
-export NOTIF_DB_NAME=fitflow_notif
-export NOTIF_DB_USER=notif_app
-export NOTIF_DB_PASSWORD='<your-password>'
+export NOTIF_DB_PORT=55432
+export NOTIF_DB_NAME=notifdb
+export NOTIF_DB_USER=notif_user
+export NOTIF_DB_PASSWORD=notif_pass
 
+# build and run only the server module
+mvn -pl notif-server -am clean package
+java -jar notif-server/target/*-jar-with-dependencies.jar
+```
+
+Or use Spring Boot run for quick dev iterations:
+
+```bash
 mvn -pl notif-api -am spring-boot:run
 ```
 
-For the course deliverable, Docker Compose is the simplest way to run both `notif-svc` and its PostgreSQL database together.
+## Schema and initialization
 
-## Useful Docker commands
+- The SQL script at `notif-svc/docker/postgres/init/01-create-notif-schema.sh` is idempotent — it checks for existing roles and tables before creating them.
+- If you change the init script and want it to re-run, remove the Postgres volume and recreate the container:
 
 ```bash
-# Start/rebuild
-docker compose up --build
-
-# Follow notif-svc logs
-docker compose logs -f notif-svc
-
-# Stop containers
-docker compose down
-
-# Stop and delete the local database volume
 docker compose down -v
+docker compose up -d --build notif-db
 ```
 
-> The PostgreSQL initialization scripts run only when the database volume is created for the first time. If you change the initialization script during development, use `docker compose down -v` before starting again.
+## Troubleshooting
+
+- If the app tries `localhost:55432` when started by Compose, ensure `NOTIF_DB_HOST` and `NOTIF_DB_PORT` are present in the `notif-svc` service environment in the root `docker-compose.yml` and that you restarted the compose stack after edits.
+- Check logs:
+
+```bash
+docker compose logs -f notif-db --tail 200
+docker compose logs -f notif-svc --tail 200
+```
+
+## References
+
+- Docker init scripts: `notif-svc/docker/postgres/init`
+- Application defaults: `notif-svc/notif-api/src/main/resources/application.yml`
+- Runnable module (jar): `notif-svc/notif-server`
+
+---
+
+If you'd like, I can also add a short `Makefile` or top-level `README` snippet that documents the exact `docker compose` command sequence and the most common quick-fix commands.
