@@ -3,48 +3,48 @@ networks:
     driver: bridge
 
 volumes:
-  # users_db_data:     # descomentar cuando se integre users-svc (rama feature/users-svc)
+  users_db_data:
   # booking_db_data:   # descomentar cuando se implemente booking-svc
   # notif_db_data:     # descomentar cuando se implemente notif-svc
 
 services:
 
-  # ---------- users-svc (Task 1 — en desarrollo, ver rama feature/users-svc) ----------
-  # users-db:
-  #   image: postgres:16-alpine
-  #   environment:
-  #     POSTGRES_DB: ${USERS_DB_NAME}
-  #     POSTGRES_USER: ${USERS_DB_USER}
-  #     POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
-  #   volumes:
-  #     - users_db_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 10
-  #   networks:
-  #     - fitflow-net
-  #
-  # users-svc:
-  #   build:
-  #     context: ./users-svc
-  #   ports:
-  #     - "8003:8003"
-  #   environment:
-  #     SERVER_PORT: 8003
-  #     DB_HOST: users-db
-  #     DB_PORT: 5432
-  #     DB_NAME: ${USERS_DB_NAME}
-  #     DB_USER: ${USERS_DB_USER}
-  #     DB_PASSWORD: ${USERS_DB_PASSWORD}
-  #     JWT_SECRET: ${JWT_SECRET}
-  #     JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
-  #   depends_on:
-  #     users-db:
-  #       condition: service_healthy
-  #   networks:
-  #     - fitflow-net
+  # ---------- users-svc (Task 1) ----------
+  users-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${USERS_DB_NAME}
+      POSTGRES_USER: ${USERS_DB_USER}
+      POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - fitflow-net
+
+  users-svc:
+    build:
+      context: ./users-svc
+    ports:
+      - "8003:8003"
+    environment:
+      SERVER_PORT: 8003
+      DB_HOST: users-db
+      DB_PORT: 5432
+      DB_NAME: ${USERS_DB_NAME}
+      DB_USER: ${USERS_DB_USER}
+      DB_PASSWORD: ${USERS_DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+    depends_on:
+      users-db:
+        condition: service_healthy
+    networks:
+      - fitflow-net
 
   # ---------- booking-svc (pendiente — ver booking-svc/README.md) ----------
   # booking-db:
