@@ -1,0 +1,19 @@
+server:
+  port: ${SERVER_PORT:8002}
+  shutdown: graceful
+
+spring:
+  application:
+    name: notif-svc
+  datasource:
+    url: jdbc:postgresql://${NOTIF_DB_HOST:localhost}:${NOTIF_DB_PORT:55432}/${NOTIF_DB_NAME:notifdb}
+    username: ${NOTIF_DB_USER:notif_user}
+    password: ${NOTIF_DB_PASSWORD:notif_pass}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
