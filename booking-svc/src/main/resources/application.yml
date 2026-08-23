@@ -1,0 +1,30 @@
+server:
+  port: ${SERVER_PORT:8001}
+
+spring:
+  application:
+    name: booking-svc
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:booking_db}
+    username: ${DB_USER:booking_user}
+    password: ${DB_PASSWORD:booking_pass}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+
+fitflow:
+  clients:
+    users-svc-url: ${USERS_SVC_URL:http://localhost:8003}
+    notif-svc-url: ${NOTIF_SVC_URL:http://localhost:8002}
+
+logging:
+  level:
+    root: INFO
+    com.fitflow.booking: DEBUG

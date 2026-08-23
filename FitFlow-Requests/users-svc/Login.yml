@@ -1,0 +1,22 @@
+info:
+  name: Login
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:8003/api/auth/login
+  body:
+    type: json
+    data: |-
+      {
+        "email":"franciscoasicona@example.com",
+        "password":"supersecreto123"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
