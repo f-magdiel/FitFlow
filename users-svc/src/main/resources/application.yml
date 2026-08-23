@@ -1,0 +1,27 @@
+server:
+  port: ${SERVER_PORT:8003}
+
+spring:
+  application:
+    name: users-svc
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:users_db}
+    username: ${DB_USER:users_user}
+    password: ${DB_PASSWORD:users_pass}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+
+jwt:
+  secret: ${JWT_SECRET:}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
+logging:
+  level:
+    root: INFO
+    com.fitflow.users: DEBUG
