@@ -8,7 +8,7 @@ Proyecto del curso de Postgrado en Diseño y Desarrollo de Software, FISICC — 
 
 ### Enlace del video - Fase 1
 
-[Ver video del laboratorio](https://drive.google.com/file/d/1gtPRzjmDeGrf3pPAyUHc2nPjdujXBpGT/view?usp=sharing)
+[Ver video Fase 1](https://drive.google.com/file/d/1gtPRzjmDeGrf3pPAyUHc2nPjdujXBpGT/view?usp=sharing)
 
 ---
 
