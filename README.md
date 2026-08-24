@@ -111,6 +111,8 @@ FitFlow/
 
 ## Integrantes del grupo
 Francisco Magdiel Asicona Mateo — 26006399
+
 Sergio Geovany García Smith — 25008130
+
 Sergio Rolando Oliva del Valle — 26005694
 
