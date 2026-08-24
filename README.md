@@ -6,6 +6,12 @@ Proyecto del curso de Postgrado en Diseño y Desarrollo de Software, FISICC — 
 > Estado actual: avance de **Task 1** (microservicios + Docker). `users-svc`, `booking-svc` y
 > `notif-svc` ya tienen implementacion base en `develop`; Consul y MCP quedan para Task 2.
 
+### Enlace del video - Fase 1
+
+[Ver video del laboratorio](https://drive.google.com/file/d/1gtPRzjmDeGrf3pPAyUHc2nPjdujXBpGT/view?usp=sharing)
+
+---
+
 ## Arquitectura
 
 ```
