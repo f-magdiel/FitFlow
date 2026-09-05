@@ -12,3 +12,5 @@ fitflow:
   clients:
     users-svc-url: http://localhost:8003
     notif-svc-url: http://localhost:8002
+
+spring.cloud.consul.enabled: false

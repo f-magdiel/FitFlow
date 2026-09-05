@@ -17,3 +17,14 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+
+spring.cloud.consul:
+  host: ${CONSUL_HOST:localhost}
+  port: ${CONSUL_PORT:8500}
+  discovery:
+    service-name: notif-svc
+    port: ${SERVER_PORT:8002}
+    health-check-path: /healthz
+    health-check-interval: 10s
+    health-check-critical-timeout: 30s
+    prefer-ip-address: true
