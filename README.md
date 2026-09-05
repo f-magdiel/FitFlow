@@ -3,9 +3,14 @@
 Plataforma de reservas de clases fitness construida con una arquitectura de microservicios.
 Proyecto del curso de Postgrado en Diseño y Desarrollo de Software, FISICC — Universidad Galileo.
 
-> Estado actual: base del proyecto para **Task 1** (microservicios + Docker). Los tres servicios
-> estan pendientes de integrarse a `develop`: `users-svc` se esta desarrollando en la rama
-> `feature/users-svc`; `booking-svc` y `notif-svc` quedan por implementar (ver sus README).
+> Estado actual: avance de **Task 1** (microservicios + Docker). `users-svc`, `booking-svc` y
+> `notif-svc` ya tienen implementacion base en `develop`; Consul y MCP quedan para Task 2.
+
+### Enlace del video - Fase 1
+
+[Ver video Fase 1](https://drive.google.com/file/d/1gtPRzjmDeGrf3pPAyUHc2nPjdujXBpGT/view?usp=sharing)
+
+---
 
 ## Arquitectura
 
@@ -19,13 +24,13 @@ Proyecto del curso de Postgrado en Diseño y Desarrollo de Software, FISICC — 
         │
         │                 ┌───────────────────┐
         │       :8001     │    booking-svc     │      ┌───────────┐
-        ├───────────────► │    (pendiente)     ├─────►│ booking-db│
+        ├───────────────► │ Java/SpringBoot    ├─────►│ booking-db│
         │                 │  reservas de clases│      │ Postgres  │
         │                 └───────────────────┘      └───────────┘
         │
         │                 ┌───────────────────┐
         │       :8002     │     notif-svc      │      ┌───────────┐
-   Cliente/─────────────► │    (pendiente)     ├─────►│ notif-db  │
+   Cliente/─────────────► │ Java/SpringBoot    ├─────►│ notif-db  │
    Postman                │   notificaciones   │      │ Postgres  │
                           └───────────────────┘      └───────────┘
 ```
@@ -36,9 +41,9 @@ llamar a la API HTTP de `users-svc`, nunca a su base de datos.
 
 | Servicio | Puerto | Responsable | Estado |
 | --- | --- | --- | --- |
-| `users-svc` | 8003 | Magdiel | 🚧 en desarrollo — rama `feature/users-svc` |
-| `booking-svc` | 8001 | _(asignar)_ | ⏳ pendiente |
-| `notif-svc` | 8002 | _(asignar)_ | ⏳ pendiente |
+| `users-svc` | 8003 | Magdiel | Base Task 1 implementada |
+| `booking-svc` | 8001 | Sergio Garcia | Base Task 1 implementada |
+| `notif-svc` | 8002 | Sergio Oliva | Base Task 1 implementada |
 | `consul` | 8500 | — | ⏳ Task 2 |
 | `fitflow-mcp` | 8000 | — | ⏳ Task 2 |
 
@@ -54,9 +59,8 @@ cp .env.example .env   # completar los valores, especialmente JWT_SECRET
 docker compose up --build
 ```
 
-En `develop`, los tres bloques de servicio en `docker-compose.yml` están comentados (no hay código
-que construir todavía). Cada integrante descomenta el bloque de su servicio cuando lo integra desde
-su rama vía Pull Request.
+En `develop`, Docker Compose levanta los tres microservicios con sus respectivas bases de datos
+PostgreSQL. Cada servicio conserva su propia carpeta, Dockerfile y README.
 
 ## Gestión de secretos
 
@@ -90,9 +94,9 @@ entorno con usuarios activos.
 FitFlow/
 ├── docker-compose.yml       # levanta todo el sistema
 ├── .env.example             # variables de entorno documentadas (sin valores reales)
-├── users-svc/                # en desarrollo — ver users-svc/README.md y rama feature/users-svc
-├── booking-svc/              # pendiente — ver booking-svc/README.md
-├── notif-svc/                 # pendiente — ver notif-svc/README.md
+├── users-svc/                # registro, login y perfil
+├── booking-svc/              # clases y reservas
+├── notif-svc/                 # notificaciones
 └── Fitflow.md                # enunciado completo del proyecto
 ```
 
@@ -101,4 +105,14 @@ FitFlow/
 - Task 2: auto-registro en Consul + servidor MCP.
 - Task 3: resiliencia (timeout/retries/circuit breaker) + logs estructurados con `x-correlation-id`.
 - Task 4: JWT validado en `booking-svc`, checklist de seguridad, video demo.
-- Task 5: arquitectura Agent-to-Agent (A2A).
+- Task 5: arquitectura Agent-to-Agent (A2A)..
+
+---
+
+## Integrantes del grupo
+Francisco Magdiel Asicona Mateo — 26006399
+
+Sergio Geovany García Smith — 25008130
+
+Sergio Rolando Oliva del Valle — 26005694
+

@@ -1,43 +1,91 @@
-# booking-svc (pendiente)
+# booking-svc
 
-Responsable: _(asignar integrante del equipo)_
+Responsable: Sergio Garcia
 Puerto: **8001**
 
-Este microservicio todavia no esta implementado. Este README documenta lo que debe exponer segun el
-enunciado de Task 1 (ver `../Fitflow.md`) y las convenciones que sigue el resto del repo (ver `users-svc/`
-como referencia de un servicio ya completo).
+Microservicio encargado de gestionar clases fitness y reservas dentro de FitFlow. Es dueño de
+`booking-db` y no consulta directamente las bases de datos de `users-svc` ni `notif-svc`.
 
-## Qué debe exponer (Task 1)
+## Responsabilidades
 
-- `POST` crear una reserva (mas adelante, en Task 4, requiere JWT valido emitido por `users-svc`)
-- `GET` consultar una reserva por ID
-- Cancelar una reserva
-- Listar clases disponibles
-- `GET /healthz` -> `{"status": "ok"}`
-- `GET /readyz` -> `{"status": "ok"}` solo si la conexion a su base de datos funciona
+- Listar clases disponibles.
+- Crear reservas para usuarios existentes.
+- Consultar reservas por ID.
+- Listar reservas de un usuario.
+- Cancelar reservas y liberar cupo.
+- Validar usuarios llamando a `users-svc`.
+- Enviar notificaciones llamando a `notif-svc`.
+- Exponer `/healthz` y `/readyz`.
 
-## Convenciones del proyecto (obligatorias)
+## Endpoints
 
-- Base de datos propia (`booking-db`, Postgres) con su propio usuario — **nunca** leer directo de la
-  tabla de `users` de `users-svc`. Si se necesita validar un usuario, llamar a la API de `users-svc`
-  (`http://users-svc:8003`) por HTTP.
-- Nada de passwords/secretos en el codigo: todo via variables de entorno (ver `.env.example` en la raiz).
-- Su propio `Dockerfile` (multi-stage, igual que `users-svc/Dockerfile`).
-- Agregar el servicio y su base de datos al `docker-compose.yml` de la raiz (hay un bloque comentado
-  como guia).
-- Comunicacion entre servicios por nombre logico (`http://booking-svc:8001`), nunca por IP.
+| Metodo | Ruta | Descripcion |
+| --- | --- | --- |
+| `GET` | `/api/classes/available` | Lista clases futuras con cupo disponible. |
+| `POST` | `/api/bookings` | Crea una reserva. |
+| `GET` | `/api/bookings/{id}` | Consulta una reserva por ID. |
+| `GET` | `/api/bookings/users/{userId}` | Lista reservas de un usuario. |
+| `DELETE` | `/api/bookings/{id}` | Cancela una reserva. |
+| `GET` | `/healthz` | Verifica que el proceso responde. |
+| `GET` | `/readyz` | Verifica conexion a PostgreSQL. |
 
-## Sugerencia de stack
+### Crear Reserva
 
-Si el equipo sigue con Java/Spring Boot, se puede generar el esqueleto igual que `users-svc`:
-
-```bash
-curl -G https://start.spring.io/starter.zip \
-  -d type=maven-project -d language=java -d bootVersion=4.1.1 \
-  -d baseDir=booking-svc -d groupId=com.fitflow -d artifactId=booking-svc \
-  -d name=booking-svc -d packageName=com.fitflow.booking -d packaging=jar \
-  -d javaVersion=21 -d dependencies=web,data-jpa,postgresql,validation,lombok \
-  -o booking-svc.zip
+```http
+POST /api/bookings
+Content-Type: application/json
 ```
 
-(el enunciado permite tambien Python/FastAPI, Node/Express o Go si el equipo lo prefiere).
+```json
+{
+  "userId": "00000000-0000-0000-0000-000000000000",
+  "classId": "00000000-0000-0000-0000-000000000000"
+}
+```
+
+`booking-svc` valida el usuario con:
+
+```txt
+GET http://users-svc:8003/api/users/{userId}
+```
+
+Si la reserva se confirma o cancela, intenta notificar con:
+
+```txt
+POST http://notif-svc:8002/notifications
+```
+
+El fallo de `notif-svc` no cancela la reserva; por ahora se registra en logs. En una fase posterior
+se agregara resiliencia formal con timeout, retries, circuit breaker u outbox.
+
+## Variables De Entorno
+
+| Variable | Ejemplo |
+| --- | --- |
+| `SERVER_PORT` | `8001` |
+| `DB_HOST` | `booking-db` |
+| `DB_PORT` | `5432` |
+| `DB_NAME` | `booking_db` |
+| `DB_USER` | `booking_user` |
+| `DB_PASSWORD` | `change-me-booking-db-password` |
+| `USERS_SVC_URL` | `http://users-svc:8003` |
+| `NOTIF_SVC_URL` | `http://notif-svc:8002` |
+
+## Ejecucion Con Docker Compose
+
+Desde la raiz del repo:
+
+```bash
+cp .env.example .env
+docker compose up --build booking-db booking-svc
+```
+
+Para levantar el sistema completo:
+
+```bash
+docker compose up --build
+```
+
+## Stack
+
+Java 21 + Spring Boot, Maven, Spring Web MVC, Spring Data JPA, Bean Validation y PostgreSQL.

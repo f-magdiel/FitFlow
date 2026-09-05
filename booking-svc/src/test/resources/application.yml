@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:booking_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+fitflow:
+  clients:
+    users-svc-url: http://localhost:8003
+    notif-svc-url: http://localhost:8002
