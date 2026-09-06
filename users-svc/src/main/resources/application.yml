@@ -21,6 +21,17 @@ jwt:
   secret: ${JWT_SECRET:}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
 
+spring.cloud.consul:
+  host: ${CONSUL_HOST:localhost}
+  port: ${CONSUL_PORT:8500}
+  discovery:
+    service-name: users-svc
+    port: ${SERVER_PORT:8003}
+    health-check-path: /healthz
+    health-check-interval: 10s
+    health-check-critical-timeout: 30s
+    prefer-ip-address: true
+
 logging:
   level:
     root: INFO

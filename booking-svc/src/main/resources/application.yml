@@ -24,6 +24,17 @@ fitflow:
     users-svc-url: ${USERS_SVC_URL:http://localhost:8003}
     notif-svc-url: ${NOTIF_SVC_URL:http://localhost:8002}
 
+spring.cloud.consul:
+  host: ${CONSUL_HOST:localhost}
+  port: ${CONSUL_PORT:8500}
+  discovery:
+    service-name: booking-svc
+    port: ${SERVER_PORT:8001}
+    health-check-path: /healthz
+    health-check-interval: 10s
+    health-check-critical-timeout: 30s
+    prefer-ip-address: true
+
 logging:
   level:
     root: INFO

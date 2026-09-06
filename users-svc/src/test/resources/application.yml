@@ -12,3 +12,5 @@ spring:
 jwt:
   secret: test-only-secret-key-not-for-production-use-1234567890
   expiration-ms: 3600000
+
+spring.cloud.consul.enabled: false

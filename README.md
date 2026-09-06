@@ -6,6 +6,12 @@ Proyecto del curso de Postgrado en Diseño y Desarrollo de Software, FISICC — 
 > Estado actual: avance de **Task 1** (microservicios + Docker). `users-svc`, `booking-svc` y
 > `notif-svc` ya tienen implementacion base en `develop`; Consul y MCP quedan para Task 2.
 
+### Enlace del video - Fase 1
+
+[Ver video Fase 1](https://drive.google.com/file/d/1gtPRzjmDeGrf3pPAyUHc2nPjdujXBpGT/view?usp=sharing)
+
+---
+
 ## Arquitectura
 
 ```
@@ -37,7 +43,7 @@ llamar a la API HTTP de `users-svc`, nunca a su base de datos.
 | --- | --- | --- | --- |
 | `users-svc` | 8003 | Magdiel | Base Task 1 implementada |
 | `booking-svc` | 8001 | Sergio Garcia | Base Task 1 implementada |
-| `notif-svc` | 8002 | _(asignar)_ | Base Task 1 implementada |
+| `notif-svc` | 8002 | Sergio Oliva | Base Task 1 implementada |
 | `consul` | 8500 | — | ⏳ Task 2 |
 | `fitflow-mcp` | 8000 | — | ⏳ Task 2 |
 
@@ -99,4 +105,14 @@ FitFlow/
 - Task 2: auto-registro en Consul + servidor MCP.
 - Task 3: resiliencia (timeout/retries/circuit breaker) + logs estructurados con `x-correlation-id`.
 - Task 4: JWT validado en `booking-svc`, checklist de seguridad, video demo.
-- Task 5: arquitectura Agent-to-Agent (A2A).
+- Task 5: arquitectura Agent-to-Agent (A2A)..
+
+---
+
+## Integrantes del grupo
+Francisco Magdiel Asicona Mateo — 26006399
+
+Sergio Geovany García Smith — 25008130
+
+Sergio Rolando Oliva del Valle — 26005694
+

@@ -9,6 +9,15 @@ volumes:
 
 services:
 
+  # ---------- consul (Task 2A) ----------
+  consul:
+    image: hashicorp/consul:1.17
+    ports:
+      - "8500:8500"
+    command: agent -dev -client=0.0.0.0
+    networks:
+      - fitflow-net
+
   # ---------- users-svc (Task 1) ----------
   users-db:
     image: postgres:16-alpine
@@ -40,9 +49,13 @@ services:
       DB_PASSWORD: ${USERS_DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
     depends_on:
       users-db:
         condition: service_healthy
+      consul:
+        condition: service_started
     networks:
       - fitflow-net
 
@@ -78,9 +91,13 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       USERS_SVC_URL: http://users-svc:8003
       NOTIF_SVC_URL: http://notif-svc:8002
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
     depends_on:
       booking-db:
         condition: service_healthy
+      consul:
+        condition: service_started
     networks:
       - fitflow-net
 
@@ -124,8 +141,12 @@ services:
       NOTIF_DB_NAME: ${NOTIF_DB_NAME}
       NOTIF_DB_USER: ${NOTIF_DB_USER}
       NOTIF_DB_PASSWORD: ${NOTIF_DB_PASSWORD}
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
     depends_on:
       notif-db:
         condition: service_healthy
+      consul:
+        condition: service_started
     networks:
       - fitflow-net
