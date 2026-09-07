@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "my-local-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "http://localhost:7777/mcp"
+      ]
+    }
+  }
+}

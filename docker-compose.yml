@@ -15,6 +15,27 @@ services:
     ports:
       - "8500:8500"
     command: agent -dev -client=0.0.0.0
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8500/v1/status/leader >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+    networks:
+      - fitflow-net
+
+  # ---------- mcp-server (inspector + bridge) ----------
+  mcp-server:
+    build:
+      context: ./mcp-server
+    ports:
+      - "7777:8000"   # MCP Streamable HTTP endpoint at /mcp
+      - "6274:16274"  # inspector UI (host 6274 -> container 16274 -> forwarded to 127.0.0.1:6274)
+      - "6277:16277"  # inspector proxy (host 6277 -> container 16277 -> forwarded to 127.0.0.1:6277)
+    restart: unless-stopped
+    depends_on:
+      consul:
+        condition: service_healthy
     networks:
       - fitflow-net
 

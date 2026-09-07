@@ -1,0 +1,21 @@
+#!/bin/sh
+# Minimal uv shim: forward 'uv run [--with ...] <cmd> [args...]' to the
+# underlying command by removing --with tokens.
+if [ "$1" = "run" ]; then
+  shift
+  # Remove any occurrences of --with <value>
+  NEW_ARGS=""
+  while [ $# -gt 0 ]; do
+    if [ "$1" = "--with" ]; then
+      shift 2 || break
+    else
+      NEW_ARGS="$NEW_ARGS \"$1\""
+      shift
+    fi
+  done
+  # exec the remaining command
+  eval "exec $NEW_ARGS"
+else
+  echo "uv: unsupported command" >&2
+  exit 2
+fi
