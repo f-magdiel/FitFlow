@@ -1,33 +1,50 @@
 # MCP Server (Python)
 
-This folder contains a minimal MCP server example (Python) based on the workshop example.
+The Python MCP SDK exposes Streamable HTTP at `/mcp` on container port
+8000. Docker publishes it at `http://localhost:7777/mcp`.
+The separate FastAPI demo bridge runs on container port 8080; its REST
+routes are not MCP endpoints.
 
-Files:
-- `src/server.py` — MCP server with a `add(a,b)` tool and a `greeting://{name}` resource.
-- `requirements.txt` — Python dependency (`mcp[cli]`).
-- `Dockerfile` — builds a small image that runs `python src/server.py`.
+## Start with Docker
 
-Run locally (inspector):
-
-```bash
-# install the MCP CLI (optional for local inspection)
-pip install "mcp[cli]"
-
-# run the server directly
-python src/server.py
-
-# in another terminal run the inspector
-mcp dev src/server.py
-```
-
-Build and run in Docker:
+With the project's Compose network and backend services already running:
 
 ```bash
-cd mcp-server
-docker build -t fitflow/mcp-server:latest .
-docker run --rm -it fitflow/mcp-server:latest
+sh mcp-server/start.sh start
 ```
 
-Notes:
-- The MCP server communicates via stdin/stdout; running it in container works with the inspector tool if you forward the process streams (running inspector locally and server in container is supported by connecting via stdio or using the MCP CLI).
-- If you want the inspector to connect from your host to the container, consider running the server with `mcp dev` on the host or expose a network transport if implementing an HTTP bridge.
+Alternatively, use `docker compose up -d --build mcp-server` from the
+project root. Use only one launcher at a time because both publish the
+same host ports. The standalone script rebuilds and recreates its container.
+
+## Claude Desktop
+
+Merge the `mcpServers` entry from the repository's
+`claude_desktop_config.json` into Claude Desktop's configuration, preserving
+other settings. On macOS this is
+`~/Library/Application Support/Claude/claude_desktop_config.json`.
+Node.js and `npx` must be available on the Mac: Claude launches `mcp-remote`
+locally to translate stdio to the container's HTTP endpoint.
+Fully quit and reopen Claude Desktop after changing its configuration.
+
+## Inspector
+
+The container starts the official MCP Inspector. Open its UI on host port
+6274 using the session token from the container logs. To test the HTTP
+endpoint, select Streamable HTTP and enter `http://127.0.0.1:8000/mcp`:
+the Inspector proxy runs inside the container. A successful stdio connection
+through `mcp dev` tests a separate process, not the published HTTP endpoint.
+Verify initialization, tool discovery, and an `add` call.
+
+## Run Python directly
+
+```bash
+pip install -r mcp-server/requirements.txt
+python mcp-server/src/server.py
+```
+
+This defaults to HTTP on `0.0.0.0:8000`. `MCP_TRANSPORT_HOST` and
+`MCP_TRANSPORT_PORT` override the listener. If you change the container
+port, also update the Docker port mapping. The tools include `add`,
+`get_available_classes`, `create_booking`, and `cancel_booking`, plus the
+`greeting://{name}` resource template.

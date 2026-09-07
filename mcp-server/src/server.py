@@ -27,7 +27,11 @@ def safe_write(msg: str, err: bool = False) -> None:
             pass
 
 
-mcp = FastMCP("MCP Server")
+mcp = FastMCP(
+    "MCP Server",
+    host=os.environ.get("MCP_TRANSPORT_HOST", "0.0.0.0"),
+    port=int(os.environ.get("MCP_TRANSPORT_PORT", "8000")),
+)
 
 
 @mcp.tool()
@@ -46,7 +50,12 @@ def run_mcp() -> None:
     """Run the MCP server (blocking). Intended to be used from a background thread."""
     safe_write("MCP run starting")
     try:
-        mcp.run()
+        transport = os.environ.get("MCP_TRANSPORT", "streamable-http")
+        safe_write(
+            f"Starting MCP transport={transport} on "
+            f"{mcp.settings.host}:{mcp.settings.port}", err=True
+        )
+        mcp.run(transport=transport)
     except Exception as e:
         safe_write(f"MCP run error: {e}", err=True)
     finally:
@@ -156,7 +165,7 @@ def cancel_booking(booking_id: str) -> dict:
 if __name__ == "__main__":
     safe_write("Starting MCP Server")
     try:
-        mcp.run()
+        run_mcp()
     except Exception as e:
         # show errors in container logs and continue to keep container alive for debugging
         safe_write(f"MCP run error: {e}", err=True)

@@ -9,7 +9,7 @@ ACTION=${1:-start}
 IMG_NAME=fitflow/mcp-server:latest
 CONTAINER_NAME=mcp-server
 HOST_PORT=7777
-CONTAINER_PORT=8080
+CONTAINER_PORT=8000
 NETWORK_NAME=fitflow-net
 # Prefer a compose-created, project-prefixed network (e.g. "<project>_fitflow-net").
 # If none found, fall back to literal "fitflow-net" when present.

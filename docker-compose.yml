@@ -29,7 +29,7 @@ services:
     build:
       context: ./mcp-server
     ports:
-      - "7777:8080"   # bridge (host 7777 -> container 8080)
+      - "7777:8000"   # MCP Streamable HTTP endpoint at /mcp
       - "6274:16274"  # inspector UI (host 6274 -> container 16274 -> forwarded to 127.0.0.1:6274)
       - "6277:16277"  # inspector proxy (host 6277 -> container 16277 -> forwarded to 127.0.0.1:6277)
     restart: unless-stopped
