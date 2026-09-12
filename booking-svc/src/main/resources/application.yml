@@ -2,6 +2,8 @@ server:
   port: ${SERVER_PORT:8001}
 
 spring:
+  main:
+    banner-mode: "off"
   application:
     name: booking-svc
   datasource:
@@ -36,6 +38,10 @@ spring.cloud.consul:
     prefer-ip-address: true
 
 logging:
+  structured:
+    format:
+      console: com.fitflow.booking.config.JsonLogFormatter
+      file: com.fitflow.booking.config.JsonLogFormatter
   level:
     root: INFO
     com.fitflow.booking: DEBUG
