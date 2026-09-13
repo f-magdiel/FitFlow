@@ -2,7 +2,15 @@ server:
   port: ${SERVER_PORT:8002}
   shutdown: graceful
 
+logging:
+  structured:
+    format:
+      console: com.fitflow.notif.config.JsonLogFormatter
+      file: com.fitflow.notif.config.JsonLogFormatter
+
 spring:
+  main:
+    banner-mode: "off"
   application:
     name: notif-svc
   datasource:

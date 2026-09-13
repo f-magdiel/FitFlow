@@ -141,7 +141,8 @@ def create_booking(user_id: str, class_id: str) -> dict:
     base = _resolve_service_via_consul("booking-svc")
     payload = {"userId": user_id, "classId": class_id}
     try:
-        r = requests.post(f"{base}/api/bookings", json=payload, timeout=5)
+        # Allow booking-svc to finish notification retries before the read timeout.
+        r = requests.post(f"{base}/api/bookings", json=payload, timeout=(3, 30))
         r.raise_for_status()
         return r.json()
     except Exception as e:
@@ -154,7 +155,8 @@ def cancel_booking(booking_id: str) -> dict:
     """Cancel booking by id. Returns BookingResponse JSON."""
     base = _resolve_service_via_consul("booking-svc")
     try:
-        r = requests.delete(f"{base}/api/bookings/{booking_id}", timeout=5)
+        # Allow booking-svc to finish notification retries before the read timeout.
+        r = requests.delete(f"{base}/api/bookings/{booking_id}", timeout=(3, 30))
         r.raise_for_status()
         return r.json()
     except Exception as e:

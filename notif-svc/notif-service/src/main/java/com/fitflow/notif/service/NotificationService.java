@@ -37,7 +37,9 @@ public class NotificationService {
         NotificationEntity saved = notificationRepository.save(entity);
 
         // Task 1 allows the actual notification delivery to be represented by a log.
-        LOGGER.info(
+        LOGGER.atInfo().addKeyValue("event", "notification.sent")
+                .addKeyValue("notification_id", saved.getId()).addKeyValue("user_id", saved.getUserId())
+                .addKeyValue("notification_type", saved.getType()).log(
                 "Notification sent: id={}, userId={}, type={}, message={}",
                 saved.getId(),
                 saved.getUserId(),
