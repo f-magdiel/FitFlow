@@ -10,6 +10,17 @@ Proyecto del curso de Postgrado en Diseño y Desarrollo de Software, FISICC — 
 
 [Ver video Fase 1](https://drive.google.com/file/d/1gtPRzjmDeGrf3pPAyUHc2nPjdujXBpGT/view?usp=sharing)
 
+## Checkpoint 3: resiliencia y observabilidad
+
+[Ver video del Checkpoint 3](https://drive.google.com/file/d/1jByH-fAwOXFfXMpElkLvZ0PLbfojpZu-/view?usp=drive_link)
+
+El video demuestra cómo `booking-svc` sigue respondiendo cuando se detiene `notif-svc`.
+La prueba se realiza desde Claude Desktop, conectado al servidor MCP (`mcp-server`),
+que consulta los microservicios. Las llamadas de notificación aplican un timeout y
+reintentos con backoff exponencial y jitter; al agotarlos, la operación de reserva continúa.
+Los logs JSON estructurados y el header `x-correlation-id` permiten seguir las solicitudes
+y los reintentos entre `booking-svc` y `notif-svc`.
+
 ---
 
 ## Arquitectura
@@ -115,4 +126,3 @@ Francisco Magdiel Asicona Mateo — 26006399
 Sergio Geovany García Smith — 25008130
 
 Sergio Rolando Oliva del Valle — 26005694
-
